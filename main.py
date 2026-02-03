@@ -256,7 +256,18 @@ def main():
     except Exception as e:
         logger.warning(f"Не удалось настроить автообновление: {e}")
     
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    webhook_url = os.environ.get('RENDER_EXTERNAL_URL')
+    port = int(os.environ.get('PORT', 8080))
+    
+    if webhook_url:
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path="webhook",
+            webhook_url=f"{webhook_url.rstrip('/')}/webhook"
+        )
+    else:
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
     main()
